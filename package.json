@@ -1,0 +1,19 @@
+{
+  "name": "tauri-nuxt-dev",
+  "description": "A development runner for Tauri and Nuxt with automatic port resolution.",
+  "version": "0.0.0",
+  "type": "module",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^24.21.0",
+      "onFail": "download"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.4.1",
+      "onFail": "download"
+    }
+  },
+  "packageManager": "pnpm@12.4.1"
+}
