@@ -10,7 +10,12 @@
     "typecheck": "tsc",
     "test": "vitest run",
     "test:watch": "vitest run --watch",
-    "test:verbose": "vitest run --reporter=verbose"
+    "test:verbose": "vitest run --reporter=verbose",
+    "prepare": "simple-git-hooks"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm fmt && pnpm lint",
+    "pre-push": "pnpm check && pnpm typecheck && pnpm test"
   },
   "devDependencies": {
     "@oxlint/plugins": "^1.82.0",
@@ -18,6 +23,7 @@
     "oxfmt": "^0.67.0",
     "oxlint": "^1.82.0",
     "oxlint-tsgolint": "^7.0.2001",
+    "simple-git-hooks": "^2.14.0",
     "typescript": "^7.0.2",
     "vitest": "^5.0.0"
   },
