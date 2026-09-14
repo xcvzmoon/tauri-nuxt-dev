@@ -3,6 +3,17 @@
   "description": "A development runner for Tauri and Nuxt with automatic port resolution.",
   "version": "0.0.0",
   "type": "module",
+  "scripts": {
+    "fmt": "oxfmt",
+    "lint": "oxlint",
+    "check": "oxfmt --check && oxlint"
+  },
+  "devDependencies": {
+    "@oxlint/plugins": "^1.82.0",
+    "oxfmt": "^0.67.0",
+    "oxlint": "^1.82.0",
+    "oxlint-tsgolint": "^7.0.2001"
+  },
   "devEngines": {
     "runtime": {
       "name": "node",
