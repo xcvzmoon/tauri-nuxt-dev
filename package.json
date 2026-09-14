@@ -6,13 +6,16 @@
   "scripts": {
     "fmt": "oxfmt",
     "lint": "oxlint",
-    "check": "oxfmt --check && oxlint"
+    "check": "oxfmt --check && oxlint",
+    "typecheck": "tsc"
   },
   "devDependencies": {
     "@oxlint/plugins": "^1.82.0",
+    "@types/node": "^26.5.1",
     "oxfmt": "^0.67.0",
     "oxlint": "^1.82.0",
-    "oxlint-tsgolint": "^7.0.2001"
+    "oxlint-tsgolint": "^7.0.2001",
+    "typescript": "^7.0.2"
   },
   "devEngines": {
     "runtime": {
