@@ -1,2 +1,5 @@
 allowBuilds:
   simple-git-hooks: true
+
+minimumReleaseAgeExclude:
+  - genbumppush@0.0.6

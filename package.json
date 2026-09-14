@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest run --watch",
     "test:verbose": "vitest run --reporter=verbose",
-    "prepare": "simple-git-hooks"
+    "prepare": "simple-git-hooks",
+    "release": "genbumppush"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm fmt && pnpm lint",
@@ -21,6 +22,7 @@
   "devDependencies": {
     "@oxlint/plugins": "^1.82.0",
     "@types/node": "^26.5.1",
+    "genbumppush": "^0.0.6",
     "oxfmt": "^0.67.0",
     "oxlint": "^1.82.0",
     "oxlint-tsgolint": "^7.0.2001",
