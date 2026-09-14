@@ -7,7 +7,10 @@
     "fmt": "oxfmt",
     "lint": "oxlint",
     "check": "oxfmt --check && oxlint",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest run --watch",
+    "test:verbose": "vitest run --reporter=verbose"
   },
   "devDependencies": {
     "@oxlint/plugins": "^1.82.0",
@@ -15,7 +18,8 @@
     "oxfmt": "^0.67.0",
     "oxlint": "^1.82.0",
     "oxlint-tsgolint": "^7.0.2001",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.0"
   },
   "devEngines": {
     "runtime": {
