@@ -1,0 +1,52 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: publish-${{ github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+
+      - name: Verify release version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          package_version=$(node -p "require('./package.json').version")
+          if [ "$RELEASE_TAG" != "v$package_version" ]; then
+            echo "Release tag $RELEASE_TAG does not match package version v$package_version." >&2
+            exit 1
+          fi
+
+      - name: Check package
+        run: |
+          pnpm check
+          pnpm typecheck
+          pnpm test
+          pnpm build
+
+      - name: Publish to npm with OIDC
+        working-directory: ${{ runner.temp }}
+        run: npm publish "$GITHUB_WORKSPACE" --access public
+        env:
+          NPM_CONFIG_PROVENANCE: 'true'
