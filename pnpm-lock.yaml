@@ -175,6 +175,9 @@ importers:
       get-port-please:
         specifier: ^3.2.0
         version: 3.2.0
+      jiti:
+        specifier: '>=2.0.0'
+        version: 2.7.0
     devDependencies:
       '@oxlint/plugins':
         specifier: ^1.82.0
