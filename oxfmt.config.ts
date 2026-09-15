@@ -15,4 +15,5 @@ export default defineConfig({
   },
   sortPackageJson: false,
   singleQuote: true,
+  ignorePatterns: ['CHANGELOG.md'],
 });
