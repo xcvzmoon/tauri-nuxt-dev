@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 import process from 'node:process';
 import { loadTauriNuxtDevConfig, toConfigOverrides } from './config.ts';
 import { formatShellCommand, resolveNuxtDevCommandArgs } from './nuxt-command.ts';
-import { resolveDevPort } from './port.ts';
+import { parsePort, resolveDevPort } from './port.ts';
 import { resolveTauriCli } from './tauri-cli.ts';
 import { buildTauriDevConfig, serializeTauriDevConfig } from './tauri-config.ts';
 
@@ -33,11 +33,8 @@ function normalizeNuxtOverride(nuxt: TauriNuxtDevOptions['nuxt']): readonly stri
 }
 
 function preferredPortFromOptions(port: number | undefined, env: NodeJS.ProcessEnv): number {
-  // resolveDevPort already understands options.port / NUXT_PORT / PORT.
-  // We only need the preferred value for the busy-port log line.
-  const raw = port ?? env.NUXT_PORT ?? env.PORT ?? '3000';
-  const parsed = Number.parseInt(String(raw), 10);
-  return Number.isSafeInteger(parsed) && parsed >= 1 && parsed <= 65_535 ? parsed : 3000;
+  // Same acceptance rules as resolveDevPort (parsePort), for the busy-port log line.
+  return parsePort(port) ?? parsePort(env.NUXT_PORT) ?? parsePort(env.PORT) ?? 3000;
 }
 
 /**
