@@ -9,7 +9,11 @@ import { formatShellCommand, resolveNuxtDevCommandArgs, shellQuote } from '../sr
 import { detectPackageManager } from '../src/package-manager.ts';
 import { parsePort, resolveDevPort } from '../src/port.ts';
 import { resolveTauriCli } from '../src/tauri-cli.ts';
-import { buildTauriDevConfig, serializeTauriDevConfig } from '../src/tauri-config.ts';
+import {
+  buildTauriDevConfig,
+  serializeTauriDevConfig,
+  toBrowserHost,
+} from '../src/tauri-config.ts';
 
 const tempDirs: string[] = [];
 
@@ -123,6 +127,19 @@ describe('buildTauriDevConfig', () => {
     );
   });
 
+  it('brackets bare IPv6 hosts and rejects URL-breaking hosts', () => {
+    expect(
+      buildTauriDevConfig({ port: 3000, host: '::1', beforeDevCommand: 'nuxt dev' }).build.devUrl,
+    ).toBe('http://[::1]:3000');
+    expect(() =>
+      buildTauriDevConfig({
+        port: 3000,
+        host: 'evil.com/path?x',
+        beforeDevCommand: 'nuxt dev',
+      }),
+    ).toThrow(/Invalid host/);
+  });
+
   it('serializes to JSON for --config', () => {
     const serialized = serializeTauriDevConfig(
       buildTauriDevConfig({ port: 3000, beforeDevCommand: 'nuxt dev --port 3000' }),
@@ -136,22 +153,58 @@ describe('buildTauriDevConfig', () => {
   });
 });
 
+describe('toBrowserHost', () => {
+  it('maps wildcard binds to localhost', () => {
+    expect(toBrowserHost('0.0.0.0')).toBe('localhost');
+    expect(toBrowserHost('::')).toBe('localhost');
+    expect(toBrowserHost('[::]')).toBe('localhost');
+  });
+
+  it('keeps hostnames and bracketed IPv6', () => {
+    expect(toBrowserHost('localhost')).toBe('localhost');
+    expect(toBrowserHost('127.0.0.1')).toBe('127.0.0.1');
+    expect(toBrowserHost('[::1]')).toBe('[::1]');
+    expect(toBrowserHost('::1')).toBe('[::1]');
+  });
+
+  it('rejects hosts that would break the URL authority', () => {
+    expect(() => toBrowserHost('evil.com/path')).toThrow(/Invalid host/);
+    expect(() => toBrowserHost('host name')).toThrow(/Invalid host/);
+    expect(() => toBrowserHost('user@host')).toThrow(/Invalid host/);
+  });
+});
+
 describe('shell quoting', () => {
-  it('leaves safe tokens unquoted', () => {
-    expect(shellQuote('nuxt')).toBe('nuxt');
-    expect(shellQuote('--port')).toBe('--port');
-    expect(shellQuote('http://localhost:3000')).toBe('http://localhost:3000');
+  it('leaves safe tokens unquoted on POSIX', () => {
+    expect(shellQuote('nuxt', 'linux')).toBe('nuxt');
+    expect(shellQuote('--port', 'darwin')).toBe('--port');
+    expect(shellQuote('http://localhost:3000', 'linux')).toBe('http://localhost:3000');
   });
 
-  it('quotes unsafe tokens', () => {
-    expect(shellQuote('hello world')).toBe(`'hello world'`);
-    expect(shellQuote(`it's`)).toBe(`'it'\\''s'`);
+  it('quotes unsafe tokens with POSIX single quotes', () => {
+    expect(shellQuote('hello world', 'linux')).toBe(`'hello world'`);
+    expect(shellQuote(`it's`, 'darwin')).toBe(`'it'\\''s'`);
+    expect(shellQuote('foo; rm -rf /', 'linux')).toBe(`'foo; rm -rf /'`);
+    expect(shellQuote('$(whoami)', 'linux')).toBe(`'$(whoami)'`);
   });
 
-  it('formats a full command', () => {
-    expect(formatShellCommand(['pnpm', 'run', 'nuxt:dev', '--', '--port', '3000'])).toBe(
+  it('quotes unsafe tokens with cmd.exe double quotes on Windows', () => {
+    expect(shellQuote('hello world', 'win32')).toBe(`"hello world"`);
+    expect(shellQuote('say "hi"', 'win32')).toBe(`"say ""hi"""`);
+    expect(shellQuote('foo&bar', 'win32')).toBe(`"foo&bar"`);
+    expect(shellQuote('%PATH%', 'win32')).toBe(`"%%PATH%%"`);
+    expect(shellQuote('C:\\Program Files\\nuxt', 'win32')).toBe(`"C:\\Program Files\\nuxt"`);
+    expect(shellQuote('C:\\nuxt', 'win32')).toBe('C:\\nuxt');
+  });
+
+  it('formats a full command for each platform', () => {
+    expect(formatShellCommand(['pnpm', 'run', 'nuxt:dev', '--', '--port', '3000'], 'linux')).toBe(
       'pnpm run nuxt:dev -- --port 3000',
     );
+    expect(formatShellCommand(['pnpm', 'run', 'nuxt:dev', '--', '--port', '3000'], 'win32')).toBe(
+      'pnpm run nuxt:dev -- --port 3000',
+    );
+    expect(formatShellCommand(['vpr', 'hello world'], 'win32')).toBe('vpr "hello world"');
   });
 });
 
