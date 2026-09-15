@@ -150,6 +150,14 @@ Project settings load with [c12](https://github.com/unjs/c12) — same pattern a
 
 Discovery is rooted at `cwd` (`--cwd` / `options.cwd`).
 
+> **TypeScript configs:** `.ts` config files load through native ESM when possible, then fall back to the optional peer [`jiti`](https://github.com/unjs/jiti). Install it if your runtime cannot import the file directly:
+>
+> ```bash
+> pnpm add -D jiti
+> ```
+>
+> JSON and `package.json#tauri-nuxt-dev` configs need no extra dependency.
+
 ### Resolution order (later wins)
 
 1. Built-in `defaults` (empty; ports still honor `NUXT_PORT` / `PORT`)
@@ -361,6 +369,7 @@ import {
   // Tauri config payload
   buildTauriDevConfig,
   serializeTauriDevConfig,
+  toBrowserHost,
   // Nuxt command
   resolveNuxtDevCommandArgs,
   formatShellCommand,
@@ -424,7 +433,7 @@ parsePort('abc'); // undefined
 ### Tauri config payload
 
 ```ts
-import { buildTauriDevConfig, serializeTauriDevConfig } from 'tauri-nuxt-dev';
+import { buildTauriDevConfig, serializeTauriDevConfig, toBrowserHost } from 'tauri-nuxt-dev';
 
 const config = buildTauriDevConfig({
   port: 3000,
@@ -434,6 +443,8 @@ const config = buildTauriDevConfig({
 // { build: { devUrl: 'http://localhost:3000', beforeDevCommand: '…' } }
 
 serializeTauriDevConfig(config); // JSON string for `--config`
+toBrowserHost('::1'); // '[::1]'
+toBrowserHost('0.0.0.0'); // 'localhost'
 ```
 
 ### Nuxt command helpers
@@ -451,7 +462,8 @@ const args = resolveNuxtDevCommandArgs({
 formatShellCommand(args);
 // 'pnpm run nuxt:dev -- --port 4000 --host 0.0.0.0'
 
-shellQuote('hello world'); // "'hello world'"
+shellQuote('hello world'); // "'hello world'" (POSIX)
+shellQuote('hello world', 'win32'); // '"hello world"' (cmd.exe)
 ```
 
 ### Resolution helpers
@@ -486,9 +498,12 @@ Local Tauri CLI is spawned as `node <resolved-entry> …` (no shell, cross-platf
 - Child processes use `shell: false`.
 - Local Tauri CLI runs via `node <resolved-entry>`, not a shell string.
 - Ports are validated as safe integers in `1..65535`.
-- `beforeDevCommand` is a shell string only because Tauri requires one; argv tokens are shell-quoted (`shellQuote`).
+- `devUrl` hosts are validated; wildcard binds map to `localhost` and bare IPv6 is bracketed.
+- `beforeDevCommand` is a shell string only because Tauri requires one; argv tokens are shell-quoted for the platform (`sh`/POSIX single quotes on Unix, `cmd.exe` double quotes on Windows).
 - Unknown CLI args are argv passthrough to `tauri dev`, not shell interpolation.
 - `.env` is loaded without overwriting existing environment variables.
+
+Report vulnerabilities via [GitHub Security Advisories](https://github.com/xcvzmoon/tauri-nuxt-dev/security/advisories/new).
 
 ## Migrating from `scripts/dev.ts`
 
@@ -544,6 +559,8 @@ pnpm check
 | `pnpm typecheck`           | TypeScript check                     |
 | `pnpm lint` / `pnpm check` | oxlint / format + lint gate          |
 | `pnpm release`             | Version bump + publish (genbumppush) |
+
+Optional peer for TypeScript config files: `jiti` (see [Configuration](#configuration-c12)).
 
 ## License
 
