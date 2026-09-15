@@ -165,6 +165,16 @@ settings:
 importers:
 
   .:
+    dependencies:
+      c12:
+        specifier: 4.0.0-rc.1
+        version: 4.0.0-rc.1(chokidar@5.0.0)(dotenv@17.4.2)(giget@3.3.1)(jiti@2.7.0)
+      consola:
+        specifier: ^3.4.2
+        version: 3.4.2
+      get-port-please:
+        specifier: ^3.2.0
+        version: 3.2.0
     devDependencies:
       '@oxlint/plugins':
         specifier: ^1.82.0
@@ -1176,6 +1186,9 @@ packages:
     resolution: {integrity: sha512-CPybnmgrwygjHnVMMK6Rx34U9ZrZo+nmFUEFOJL6cNc8YZ76XajL9rKNrtAdn46SId65CUko5+Pkc32UxbxxGA==}
     engines: {node: '>=20.19.0'}
     hasBin: true
+
+  get-port-please@3.2.0:
+    resolution: {integrity: sha512-I9QVvBw5U/hw3RmWpYKRumUeaDgxTPd401x364rLmWBJcOQ753eov1eTgzDqRG9bqFIfDc7gfzcQEWrUri3o1A==}
 
   get-tsconfig@5.0.0-beta.6:
     resolution: {integrity: sha512-X6fBC0pmImC70gvX2zm56go9hx0MyoGVdG0tUCkg/D+Xnh5TJsOZ7iDbOdI3PvmtrDxnu1YdDufpK2QJX1Meqw==}
@@ -2395,6 +2408,8 @@ snapshots:
       - giget
       - jiti
       - magicast
+
+  get-port-please@3.2.0: {}
 
   get-tsconfig@5.0.0-beta.6:
     dependencies:

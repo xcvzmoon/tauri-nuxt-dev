@@ -3,9 +3,34 @@
   "description": "A development runner for Tauri and Nuxt with automatic port resolution.",
   "version": "0.0.0",
   "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xcvzmoon/tauri-nuxt-dev.git"
+  },
+  "bugs": {
+    "url": "https://github.com/xcvzmoon/tauri-nuxt-dev/issues"
+  },
+  "homepage": "https://github.com/xcvzmoon/tauri-nuxt-dev#readme",
+  "keywords": [
+    "tauri",
+    "nuxt",
+    "dev",
+    "port",
+    "get-port-please",
+    "desktop"
+  ],
   "files": [
     "dist"
   ],
+  "bin": {
+    "tauri-nuxt-dev": "./dist/cli.mjs"
+  },
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./cli": "./dist/cli.mjs",
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "build": "tsdown",
     "fmt": "oxfmt",
@@ -21,6 +46,11 @@
   "simple-git-hooks": {
     "pre-commit": "pnpm fmt && pnpm lint",
     "pre-push": "pnpm check && pnpm typecheck && pnpm test"
+  },
+  "dependencies": {
+    "c12": "4.0.0-rc.1",
+    "consola": "^3.4.2",
+    "get-port-please": "^3.2.0"
   },
   "devDependencies": {
     "@oxlint/plugins": "^1.82.0",
@@ -48,9 +78,5 @@
       "onFail": "download"
     }
   },
-  "packageManager": "pnpm@12.4.1",
-  "exports": {
-    ".": "./dist/index.mjs",
-    "./package.json": "./package.json"
-  }
+  "packageManager": "pnpm@12.4.1"
 }
