@@ -1,7 +1,7 @@
 {
   "name": "tauri-nuxt-dev",
   "description": "A development runner for Tauri and Nuxt with automatic port resolution.",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "license": "MIT",
   "repository": {
