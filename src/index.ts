@@ -4,7 +4,7 @@ export { formatShellCommand, resolveNuxtDevCommandArgs, shellQuote } from './nux
 export { parsePort, resolveDevPort } from './port.ts';
 export { tauriNuxtDev } from './runner.ts';
 export { resolveTauriCli } from './tauri-cli.ts';
-export { buildTauriDevConfig, serializeTauriDevConfig } from './tauri-config.ts';
+export { buildTauriDevConfig, serializeTauriDevConfig, toBrowserHost } from './tauri-config.ts';
 export type {
   BuildTauriConfigOptions,
   Logger,
