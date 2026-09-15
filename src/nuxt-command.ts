@@ -56,15 +56,40 @@ export function resolveNuxtDevCommandArgs(options: NuxtDevCommandOptions): strin
   return ['nuxt', 'dev', ...portFlag, ...hostFlag];
 }
 
-/** Shell-escape a single argv token for embedding in a command string. */
-export function shellQuote(value: string): string {
-  if (value.length > 0 && /^[A-Za-z0-9_./:@%+=,-]+$/.test(value)) {
+const POSIX_SAFE = /^[A-Za-z0-9_./:@%+=,-]+$/;
+// Windows paths need backslashes; `%` is excluded so `%VAR%` is not expanded.
+const CMD_SAFE = /^[A-Za-z0-9_./:\\@+=,-]+$/;
+
+function quoteForPosix(value: string): string {
+  if (value.length > 0 && POSIX_SAFE.test(value)) {
     return value;
   }
   return `'${value.replaceAll("'", `'\\''`)}'`;
 }
 
+function quoteForCmd(value: string): string {
+  if (value.length > 0 && CMD_SAFE.test(value)) {
+    return value;
+  }
+  // cmd.exe: wrap in double quotes; double embedded quotes.
+  // Percent is doubled so `%VAR%` is not expanded from beforeDevCommand.
+  return `"${value.replaceAll('%', '%%').replaceAll('"', '""')}"`;
+}
+
+/**
+ * Shell-escape a single argv token for embedding in a command string.
+ *
+ * Tauri runs `beforeDevCommand` through the platform shell (`sh -c` on Unix,
+ * `cmd.exe /C` on Windows), so quoting follows `platform`.
+ */
+export function shellQuote(value: string, platform: NodeJS.Platform = process.platform): string {
+  return platform === 'win32' ? quoteForCmd(value) : quoteForPosix(value);
+}
+
 /** Render argv as a shell command string for Tauri's beforeDevCommand. */
-export function formatShellCommand(args: readonly string[]): string {
-  return args.map((arg) => shellQuote(arg)).join(' ');
+export function formatShellCommand(
+  args: readonly string[],
+  platform: NodeJS.Platform = process.platform,
+): string {
+  return args.map((arg) => shellQuote(arg, platform)).join(' ');
 }
